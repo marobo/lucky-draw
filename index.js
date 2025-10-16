@@ -48,23 +48,23 @@ const getIPv4 = (req, res, next) => {
 const conceptTypes = {
   timor: {
     color: '#00AB55', // green
-    concepts: ['Tais', 'Crocodile', 'Uma Lulik', 'Coffee', 'Atauro', 'Rice', 'Tetum']
+    concepts: ['Matak', 'Matak', 'Matak']
   },
   entrepreneurship: {
     color: '#2065D1', // blue
-    concepts: ['Idea', 'Mentor', 'Prototype', 'Pitch', 'Risk', 'Sales', 'Innovation']
+    concepts: ['Azul', 'Azul', 'Azul']
   },
   youth: {
-    color: '#FF5630', // orange
-    concepts: ['Energy', 'Dreams', 'Knowledge', 'Friends', 'Future', 'Talent', 'Play']
+    color: '#000000', // black
+    concepts: ['Metan', 'Metan', 'Metan']
   },
   sustainability: {
     color: '#FFB400', // yellow
-    concepts: ['Environment', 'Renewable', 'Recycling', 'Conservation', 'Climate', 'Green Energy', 'Biodiversity']
+    concepts: ['Kinur', 'Kinur', 'Kinur']
   },
   health: {
-    color: '#00838F', // teal
-    concepts: ['Health', 'Wellness', 'Fitness', 'Nutrition', 'Mental Health', 'Prevention', 'Treatment']
+    color: '#FF0000', // red
+    concepts: ['Mean', 'Mean', 'Mean']
   }
 };
 
