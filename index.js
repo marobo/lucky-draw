@@ -206,7 +206,8 @@ app.get('/test', (req, res) => {
 
 // Generate QR code when server starts
 async function generateQRCode() {
-  const serverUrl = `http://${HOST}:${PORT}`;
+  // Use PUBLIC_URL from environment if available, otherwise default to host:port (useful for local dev)
+  const serverUrl = process.env.PUBLIC_URL || `http://${HOST}:${PORT}`;
   try {
     // Generate QR code and save it to public directory
     await QRCode.toFile(
