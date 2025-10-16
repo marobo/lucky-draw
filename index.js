@@ -5,12 +5,16 @@ const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
 const QRCode = require('qrcode');
+const http = require('http');
+const { Server } = require('socket.io');
 require('dotenv').config();  // Add this line to load .env file
 
 // Initialize Express app
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || 'localhost';
+const HOST = process.env.HOST || '0.0.0.0';
 
 // Add logging middleware
 app.use(morgan(':remote-addr - :method :url :status :response-time ms'));
@@ -91,6 +95,39 @@ app.get('/status', getIPv4, (req, res) => {
   }
 });
 
+// Add monitoring endpoint for facilitators
+app.get('/monitor', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'monitor.html'));
+});
+
+// Add API endpoint for monitoring data
+app.get('/api/monitor', (req, res) => {
+  const participants = Array.from(userDraws.entries()).map(([ip, data]) => ({
+    ip,
+    concept: data.concept,
+    type: data.type,
+    color: data.color,
+    timestamp: data.timestamp || 'Unknown'
+  }));
+  
+  const stats = {
+    totalParticipants: participants.length,
+    remainingConcepts: concepts.length,
+    totalConcepts: 28, // 7 concepts per category × 4 categories
+    categoryStats: {
+      timor: participants.filter(p => p.type === 'timor').length,
+      entrepreneurship: participants.filter(p => p.type === 'entrepreneurship').length,
+      youth: participants.filter(p => p.type === 'youth').length,
+      sustainability: participants.filter(p => p.type === 'sustainability').length
+    }
+  };
+  
+  res.json({
+    participants,
+    stats
+  });
+});
+
 // Update draw route to store results
 app.get('/draw', getIPv4, (req, res) => {
   const userIP = req.ipv4;
@@ -118,11 +155,22 @@ app.get('/draw', getIPv4, (req, res) => {
     concept: selectedItem.concept,
     type: selectedItem.type,
     color: conceptTypes[selectedItem.type].color,
-    remaining: concepts.length
+    remaining: concepts.length,
+    timestamp: new Date().toISOString()
   };
   userDraws.set(userIP, drawResult);
   
   console.log(`[${new Date().toISOString()}] User ${userIP} drew concept: "${selectedItem.concept}". ${concepts.length} concepts remaining`);
+  
+  // Emit real-time update to monitoring clients
+  io.emit('participantDraw', {
+    ip: userIP,
+    concept: selectedItem.concept,
+    type: selectedItem.type,
+    color: conceptTypes[selectedItem.type].color,
+    timestamp: drawResult.timestamp,
+    remaining: concepts.length
+  });
   
   res.json(drawResult);
 });
@@ -223,9 +271,41 @@ app.get('/wifi', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'wifi.html'));
 });
 
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  console.log(`[${new Date().toISOString()}] Monitor client connected: ${socket.id}`);
+  
+  // Send initial data when a monitor client connects
+  socket.emit('initialData', {
+    participants: Array.from(userDraws.entries()).map(([ip, data]) => ({
+      ip,
+      concept: data.concept,
+      type: data.type,
+      color: data.color,
+      timestamp: data.timestamp || 'Unknown'
+    })),
+    stats: {
+      totalParticipants: userDraws.size,
+      remainingConcepts: concepts.length,
+      totalConcepts: 28,
+      categoryStats: {
+        timor: Array.from(userDraws.values()).filter(d => d.type === 'timor').length,
+        entrepreneurship: Array.from(userDraws.values()).filter(d => d.type === 'entrepreneurship').length,
+        youth: Array.from(userDraws.values()).filter(d => d.type === 'youth').length,
+        sustainability: Array.from(userDraws.values()).filter(d => d.type === 'sustainability').length
+      }
+    }
+  });
+  
+  socket.on('disconnect', () => {
+    console.log(`[${new Date().toISOString()}] Monitor client disconnected: ${socket.id}`);
+  });
+});
+
 // Start the server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running at http://${HOST}:${PORT}`);
+  console.log(`Monitor dashboard available at http://${HOST}:${PORT}/monitor`);
   generateQRCode();
   generateWiFiQRCode();
 });

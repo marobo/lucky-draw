@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Monitor - Lucky Draw</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .monitor-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .category-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .category-stat {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .timor { background-color: #00AB55; }
+        .entrepreneurship { background-color: #2065D1; }
+        .youth { background-color: #FF5630; }
+        .sustainability { background-color: #FFB400; }
+        
+        .participants-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .participants-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .participants-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .participant-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid;
+        }
+        
+        .participant-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .participant-concept {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .participant-type {
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.8em;
+            text-transform: capitalize;
+        }
+        
+        .participant-meta {
+            text-align: right;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .refresh-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .refresh-btn:hover {
+            background: #0056b3;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .timestamp {
+            font-size: 0.8em;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">
+        Connecting...
+    </div>
+    
+    <div class="monitor-container">
+        <div class="header">
+            <h1>🎯 Live Participant Monitor</h1>
+            <p>Real-time tracking of concept draws</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalParticipants">0</div>
+                <div class="stat-label">Total Participants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="remainingConcepts">28</div>
+                <div class="stat-label">Concepts Remaining</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalConcepts">28</div>
+                <div class="stat-label">Total Concepts</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <h3 style="margin-top: 0; text-align: center;">Category Distribution</h3>
+            <div class="category-stats">
+                <div class="category-stat timor">
+                    <div>Timor-Leste</div>
+                    <div id="timorCount">0</div>
+                </div>
+                <div class="category-stat entrepreneurship">
+                    <div>Entrepreneurship</div>
+                    <div id="entrepreneurshipCount">0</div>
+                </div>
+                <div class="category-stat youth">
+                    <div>Youth</div>
+                    <div id="youthCount">0</div>
+                </div>
+                <div class="category-stat sustainability">
+                    <div>Sustainability</div>
+                    <div id="sustainabilityCount">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="participants-section">
+            <div class="participants-header">
+                <h3>Recent Participants</h3>
+                <button class="refresh-btn" onclick="refreshData()">Refresh</button>
+            </div>
+            <div class="participants-list" id="participantsList">
+                <div class="empty-state">
+                    No participants yet. Waiting for draws...
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let participants = [];
+        
+        // Connection status
+        socket.on('connect', () => {
+            document.getElementById('connectionStatus').textContent = 'Connected';
+            document.getElementById('connectionStatus').className = 'connection-status connected';
+        });
+        
+        socket.on('disconnect', () => {
+            document.getElementById('connectionStatus').textContent = 'Disconnected';
+            document.getElementById('connectionStatus').className = 'connection-status disconnected';
+        });
+        
+        // Initial data
+        socket.on('initialData', (data) => {
+            participants = data.participants;
+            updateStats(data.stats);
+            updateParticipantsList();
+        });
+        
+        // Real-time updates
+        socket.on('participantDraw', (data) => {
+            // Add new participant to the list
+            participants.unshift({
+                ip: data.ip,
+                concept: data.concept,
+                type: data.type,
+                color: data.color,
+                timestamp: data.timestamp
+            });
+            
+            // Update stats
+            updateStats({
+                totalParticipants: participants.length,
+                remainingConcepts: data.remaining,
+                totalConcepts: 28,
+                categoryStats: {
+                    timor: participants.filter(p => p.type === 'timor').length,
+                    entrepreneurship: participants.filter(p => p.type === 'entrepreneurship').length,
+                    youth: participants.filter(p => p.type === 'youth').length,
+                    sustainability: participants.filter(p => p.type === 'sustainability').length
+                }
+            });
+            
+            updateParticipantsList();
+        });
+        
+        function updateStats(stats) {
+            document.getElementById('totalParticipants').textContent = stats.totalParticipants;
+            document.getElementById('remainingConcepts').textContent = stats.remainingConcepts;
+            document.getElementById('totalConcepts').textContent = stats.totalConcepts;
+            
+            document.getElementById('timorCount').textContent = stats.categoryStats.timor;
+            document.getElementById('entrepreneurshipCount').textContent = stats.categoryStats.entrepreneurship;
+            document.getElementById('youthCount').textContent = stats.categoryStats.youth;
+            document.getElementById('sustainabilityCount').textContent = stats.categoryStats.sustainability;
+        }
+        
+        function updateParticipantsList() {
+            const list = document.getElementById('participantsList');
+            
+            if (participants.length === 0) {
+                list.innerHTML = '<div class="empty-state">No participants yet. Waiting for draws...</div>';
+                return;
+            }
+            
+            list.innerHTML = participants.map(participant => `
+                <div class="participant-item" style="border-left-color: ${participant.color}">
+                    <div class="participant-info">
+                        <div class="participant-concept">${participant.concept}</div>
+                        <div class="participant-type" style="background-color: ${participant.color}">
+                            ${participant.type}
+                        </div>
+                    </div>
+                    <div class="participant-meta">
+                        <div>IP: ${participant.ip}</div>
+                        <div class="timestamp">${formatTimestamp(participant.timestamp)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function formatTimestamp(timestamp) {
+            if (timestamp === 'Unknown') return 'Unknown';
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString();
+        }
+        
+        function refreshData() {
+            fetch('/api/monitor')
+                .then(response => response.json())
+                .then(data => {
+                    participants = data.participants;
+                    updateStats(data.stats);
+                    updateParticipantsList();
+                })
+                .catch(error => {
+                    console.error('Error refreshing data:', error);
+                });
+        }
+        
+        // Auto-refresh every 30 seconds as backup
+        setInterval(refreshData, 30000);
+    </script>
+</body>
+</html>
