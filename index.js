@@ -61,6 +61,10 @@ const conceptTypes = {
   sustainability: {
     color: '#FFB400', // yellow
     concepts: ['Environment', 'Renewable', 'Recycling', 'Conservation', 'Climate', 'Green Energy', 'Biodiversity']
+  },
+  health: {
+    color: '#00838F', // teal
+    concepts: ['Health', 'Wellness', 'Fitness', 'Nutrition', 'Mental Health', 'Prevention', 'Treatment']
   }
 };
 
@@ -113,12 +117,13 @@ app.get('/api/monitor', (req, res) => {
   const stats = {
     totalParticipants: participants.length,
     remainingConcepts: concepts.length,
-    totalConcepts: 28, // 7 concepts per category × 4 categories
+    totalConcepts: 28, // 7 concepts per category × 5 categories
     categoryStats: {
       timor: participants.filter(p => p.type === 'timor').length,
       entrepreneurship: participants.filter(p => p.type === 'entrepreneurship').length,
       youth: participants.filter(p => p.type === 'youth').length,
-      sustainability: participants.filter(p => p.type === 'sustainability').length
+      sustainability: participants.filter(p => p.type === 'sustainability').length,
+      health: participants.filter(p => p.type === 'health').length
     }
   };
   
@@ -292,7 +297,8 @@ io.on('connection', (socket) => {
         timor: Array.from(userDraws.values()).filter(d => d.type === 'timor').length,
         entrepreneurship: Array.from(userDraws.values()).filter(d => d.type === 'entrepreneurship').length,
         youth: Array.from(userDraws.values()).filter(d => d.type === 'youth').length,
-        sustainability: Array.from(userDraws.values()).filter(d => d.type === 'sustainability').length
+        sustainability: Array.from(userDraws.values()).filter(d => d.type === 'sustainability').length,
+        health: Array.from(userDraws.values()).filter(d => d.type === 'health').length
       }
     }
   });

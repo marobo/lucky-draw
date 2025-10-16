@@ -67,6 +67,7 @@
         .entrepreneurship { background-color: #2065D1; }
         .youth { background-color: #FF5630; }
         .sustainability { background-color: #FFB400; }
+        .health { background-color: #00838F; }
         
         .participants-section {
             background: white;
@@ -218,6 +219,10 @@
                     <div>Sustainability</div>
                     <div id="sustainabilityCount">0</div>
                 </div>
+                <div class="category-stat health">
+                    <div>Health</div>
+                    <div id="healthCount">0</div>
+                </div>
             </div>
         </div>
         
@@ -277,7 +282,8 @@
                     timor: participants.filter(p => p.type === 'timor').length,
                     entrepreneurship: participants.filter(p => p.type === 'entrepreneurship').length,
                     youth: participants.filter(p => p.type === 'youth').length,
-                    sustainability: participants.filter(p => p.type === 'sustainability').length
+                    sustainability: participants.filter(p => p.type === 'sustainability').length,
+                    health: participants.filter(p => p.type === 'health').length
                 }
             });
             
@@ -293,6 +299,7 @@
             document.getElementById('entrepreneurshipCount').textContent = stats.categoryStats.entrepreneurship;
             document.getElementById('youthCount').textContent = stats.categoryStats.youth;
             document.getElementById('sustainabilityCount').textContent = stats.categoryStats.sustainability;
+            document.getElementById('healthCount').textContent = stats.categoryStats.health;
         }
         
         function updateParticipantsList() {
