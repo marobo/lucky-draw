@@ -32,7 +32,7 @@ A simple web application for workshop facilitators to distribute unique concepts
    - Each participant scans the code to access the application
 
 3. **Concept Drawing**
-   - Participants click the "DRAW A CONCEPT" button
+   - Participants click the "PICK A COLOR" button
    - They receive a unique concept with a color-coded background
    - The concept stays with them even if they reload the page
    - Each IP address can only draw once until the server restarts

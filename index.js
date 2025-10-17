@@ -76,7 +76,7 @@ let concepts = Object.entries(conceptTypes).flatMap(([type, data]) =>
 // Uncomment and modify the static files middleware
 app.use(express.static('public'));
 
-// Route: Home page – serves a simple HTML with a button to draw a concept
+// Route: Home page – serves a simple HTML with a button to pick a color
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
