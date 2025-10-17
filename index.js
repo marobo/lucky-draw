@@ -117,7 +117,7 @@ app.get('/api/monitor', (req, res) => {
   const stats = {
     totalParticipants: participants.length,
     remainingConcepts: concepts.length,
-    totalConcepts: 28, // 7 concepts per category × 5 categories
+    totalConcepts: 15, // 3 concepts per category × 5 categories
     categoryStats: {
       timor: participants.filter(p => p.type === 'timor').length,
       entrepreneurship: participants.filter(p => p.type === 'entrepreneurship').length,
@@ -292,7 +292,7 @@ io.on('connection', (socket) => {
     stats: {
       totalParticipants: userDraws.size,
       remainingConcepts: concepts.length,
-      totalConcepts: 28,
+      totalConcepts: 15,
       categoryStats: {
         timor: Array.from(userDraws.values()).filter(d => d.type === 'timor').length,
         entrepreneurship: Array.from(userDraws.values()).filter(d => d.type === 'entrepreneurship').length,
