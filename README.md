@@ -6,6 +6,7 @@ A simple web application for workshop facilitators to distribute unique concepts
 
 - One-time random concept drawing per user (based on IP address)
 - Persistent results across page reloads (until server restart)
+- **Live monitoring dashboard for facilitators** - Real-time tracking of participant activity
 - QR codes for easy access:
   - WiFi connection QR code
   - Application access QR code
@@ -35,6 +36,13 @@ A simple web application for workshop facilitators to distribute unique concepts
    - They receive a unique concept with a color-coded background
    - The concept stays with them even if they reload the page
    - Each IP address can only draw once until the server restarts
+
+4. **Live Monitoring (For Facilitators)**
+   - Access the monitoring dashboard at `/monitor` (e.g., `http://your-ip:3000/monitor`)
+   - View real-time participant activity and statistics
+   - See which concepts have been drawn and by whom
+   - Monitor category distribution and remaining concepts
+   - Track participant IP addresses and timestamps
 
 ## Prerequisites
 
@@ -86,13 +94,14 @@ random-concept-draw/
 ├── index.js          # Main server file
 ├── public/           # Static files
 │   ├── index.html    # Main page
-│   ├── test.html    # Test page
-│   ├── wifi.html    # WiFi QR code page
-│   ├── qr.html      # App QR code page
-│   ├── styles.css   # Styles
-│   └── script.js    # Client-side JavaScript
-├── .env.example     # Example configuration
-└── package.json     # Project dependencies
+│   ├── test.html     # Test page
+│   ├── monitor.html  # Live monitoring dashboard
+│   ├── wifi.html     # WiFi QR code page
+│   ├── qr.html       # App QR code page
+│   ├── styles.css    # Styles
+│   └── script.js     # Client-side JavaScript
+├── .env.example      # Example configuration
+└── package.json      # Project dependencies
 ```
 
 ## Dependencies
@@ -101,6 +110,7 @@ random-concept-draw/
 - morgan - HTTP request logger middleware
 - qrcode - QR code generation
 - dotenv - Environment configuration
+- socket.io - Real-time communication for live monitoring
 
 ## Testing
 
@@ -111,6 +121,29 @@ Use the test page at `/test` to:
 - Verify the remaining count
 
 This is useful for facilitators to test the system before a workshop.
+
+## Live Monitoring Dashboard
+
+The monitoring dashboard provides real-time insights into participant activity:
+
+### Features
+- **Real-time Updates**: See participant draws as they happen using WebSocket technology
+- **Statistics Overview**: Track total participants, remaining concepts, and category distribution
+- **Participant List**: View all participants with their drawn concepts, IP addresses, and timestamps
+- **Category Tracking**: Monitor how many concepts have been drawn from each category
+- **Connection Status**: Visual indicator showing connection to the live feed
+
+### Access
+- Navigate to `http://your-server-ip:3000/monitor` in your browser
+- The dashboard automatically connects and starts receiving real-time updates
+- No authentication required - designed for workshop environments
+
+### Use Cases
+- **Workshop Management**: Monitor participation in real-time
+- **Progress Tracking**: See how many participants have drawn concepts
+- **Category Balance**: Ensure concepts are distributed across all categories
+- **Troubleshooting**: Identify participants who may need assistance
+- **Data Collection**: Export participant data for workshop analysis
 
 ## Created for
 
