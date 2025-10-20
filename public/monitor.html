@@ -65,9 +65,9 @@
         
         .timor { background-color: #00AB55; }
         .entrepreneurship { background-color: #2065D1; }
-        .youth { background-color: #FF5630; }
+        .youth { background-color: #000000; }
         .sustainability { background-color: #FFB400; }
-        .health { background-color: #00838F; }
+        .health { background-color: #FF0000; }
         
         .participants-section {
             background: white;
@@ -182,7 +182,7 @@
     <div class="monitor-container">
         <div class="header">
             <h1>🎯 Live Participant Monitor</h1>
-            <p>Real-time tracking of concept draws</p>
+            <p>Real-time tracking of color picks</p>
         </div>
         
         <div class="stats-grid">
@@ -191,12 +191,12 @@
                 <div class="stat-label">Total Participants</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="remainingConcepts">28</div>
-                <div class="stat-label">Concepts Remaining</div>
+                <div class="stat-number" id="remainingConcepts">15</div>
+                <div class="stat-label">Colors Remaining</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="totalConcepts">28</div>
-                <div class="stat-label">Total Concepts</div>
+                <div class="stat-number" id="totalConcepts">15</div>
+                <div class="stat-label">Total Colors</div>
             </div>
         </div>
         
@@ -204,23 +204,23 @@
             <h3 style="margin-top: 0; text-align: center;">Category Distribution</h3>
             <div class="category-stats">
                 <div class="category-stat timor">
-                    <div>Timor-Leste</div>
+                    <div>Matak</div>
                     <div id="timorCount">0</div>
                 </div>
                 <div class="category-stat entrepreneurship">
-                    <div>Entrepreneurship</div>
+                    <div>Azul</div>
                     <div id="entrepreneurshipCount">0</div>
                 </div>
                 <div class="category-stat youth">
-                    <div>Youth</div>
+                    <div>Metan</div>
                     <div id="youthCount">0</div>
                 </div>
                 <div class="category-stat sustainability">
-                    <div>Sustainability</div>
+                    <div>Kinur</div>
                     <div id="sustainabilityCount">0</div>
                 </div>
                 <div class="category-stat health">
-                    <div>Health</div>
+                    <div>Mean</div>
                     <div id="healthCount">0</div>
                 </div>
             </div>
@@ -233,7 +233,7 @@
             </div>
             <div class="participants-list" id="participantsList">
                 <div class="empty-state">
-                    No participants yet. Waiting for draws...
+                    No participants yet. Waiting for color picks...
                 </div>
             </div>
         </div>
@@ -277,7 +277,7 @@
             updateStats({
                 totalParticipants: participants.length,
                 remainingConcepts: data.remaining,
-                totalConcepts: 28,
+                totalConcepts: 15,
                 categoryStats: {
                     timor: participants.filter(p => p.type === 'timor').length,
                     entrepreneurship: participants.filter(p => p.type === 'entrepreneurship').length,
