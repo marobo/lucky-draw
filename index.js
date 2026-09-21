@@ -48,23 +48,23 @@ const getIPv4 = (req, res, next) => {
 const conceptTypes = {
   timor: {
     color: '#00AB55', // green
-    concepts: ['Tais', 'Crocodile', 'Uma Lulik', 'Coffee', 'Atauro', 'Rice', 'Tetum']
+    concepts: ['Matak', 'Matak', 'Matak']
   },
   entrepreneurship: {
     color: '#2065D1', // blue
-    concepts: ['Idea', 'Mentor', 'Prototype', 'Pitch', 'Risk', 'Sales', 'Innovation']
+    concepts: ['Azul', 'Azul', 'Azul']
   },
   youth: {
-    color: '#FF5630', // orange
-    concepts: ['Energy', 'Dreams', 'Knowledge', 'Friends', 'Future', 'Talent', 'Play']
+    color: '#000000', // black
+    concepts: ['Metan', 'Metan', 'Metan']
   },
   sustainability: {
     color: '#FFB400', // yellow
-    concepts: ['Environment', 'Renewable', 'Recycling', 'Conservation', 'Climate', 'Green Energy', 'Biodiversity']
+    concepts: ['Kinur', 'Kinur', 'Kinur']
   },
   health: {
-    color: '#00838F', // teal
-    concepts: ['Health', 'Wellness', 'Fitness', 'Nutrition', 'Mental Health', 'Prevention', 'Treatment']
+    color: '#FF0000', // red
+    concepts: ['Mean', 'Mean', 'Mean']
   }
 };
 
@@ -76,7 +76,7 @@ let concepts = Object.entries(conceptTypes).flatMap(([type, data]) =>
 // Uncomment and modify the static files middleware
 app.use(express.static('public'));
 
-// Route: Home page – serves a simple HTML with a button to draw a concept
+// Route: Home page – serves a simple HTML with a button to pick a color
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -117,7 +117,7 @@ app.get('/api/monitor', (req, res) => {
   const stats = {
     totalParticipants: participants.length,
     remainingConcepts: concepts.length,
-    totalConcepts: 28, // 7 concepts per category × 5 categories
+    totalConcepts: 15, // 3 concepts per category × 5 categories
     categoryStats: {
       timor: participants.filter(p => p.type === 'timor').length,
       entrepreneurship: participants.filter(p => p.type === 'entrepreneurship').length,
@@ -292,7 +292,7 @@ io.on('connection', (socket) => {
     stats: {
       totalParticipants: userDraws.size,
       remainingConcepts: concepts.length,
-      totalConcepts: 28,
+      totalConcepts: 15,
       categoryStats: {
         timor: Array.from(userDraws.values()).filter(d => d.type === 'timor').length,
         entrepreneurship: Array.from(userDraws.values()).filter(d => d.type === 'entrepreneurship').length,

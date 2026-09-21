@@ -18,13 +18,17 @@ There are **35 concepts** (7 in each of 5 categories). Each concept can be drawn
 
 ## Workshop flow
 
-Do this on one laptop connected to the workshop Wi‑Fi.
+1. **Concept Drawing**
+   - Participants click the "PICK A COLOR" button
+   - They receive a unique concept with a color-coded background
+   - The concept stays with them even if they reload the page
+   - Each IP address can only draw once until the server restarts
 
-1. **Configure and start the server** (see [Setup](#setup)).
-2. **Connect phones to Wi‑Fi** — open `/wifi` on the laptop and let people scan that QR code. Skip this if everyone is already on the same network.
-3. **Open the app** — open `/qr` and share that QR code. It points to the draw page.
-4. **Participants draw** — they tap the button once and keep their concept.
-5. **Watch progress** — open `/monitor` on a projector or second screen. Draws appear live. There is no login; treat it as a room-only page.
+2. **Configure and start the server** (see [Setup](#setup)).
+3. **Connect phones to Wi‑Fi** — open `/wifi` on the laptop and let people scan that QR code. Skip this if everyone is already on the same network.
+4. **Open the app** — open `/qr` and share that QR code. It points to the draw page.
+5. **Participants draw** — they tap the button once and keep their concept.
+6. **Watch progress** — open `/monitor` on a projector or second screen. Draws appear live. There is no login; treat it as a room-only page.
 
 ## Setup
 
