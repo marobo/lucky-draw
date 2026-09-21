@@ -1,80 +1,54 @@
-# Random Concept Draw
+# Lucky Draw
 
-A simple web application for workshop facilitators to distribute unique concepts to participants. Each participant scans a QR code to draw their own random concept from four categories: Timor-Leste, Entrepreneurship, Youth, and Sustainability. The background color changes based on the concept category, making it easy to identify which theme each participant got.
+A small workshop app: each participant scans a QR code, taps **Draw a concept**, and gets one unique concept. The page color shows the category so you can see themes at a glance.
 
-## Features
+Built for the MOVE Entrepreneurship Workshop (Catalpa International).
 
-- One-time random concept drawing per user (based on IP address)
-- Persistent results across page reloads (until server restart)
-- **Live monitoring dashboard for facilitators** - Real-time tracking of participant activity
-- QR codes for easy access:
-  - WiFi connection QR code
-  - Application access QR code
-- Color-coded concept categories:
-  - Timor-Leste (Green)
-  - Entrepreneurship (Blue)
-  - Youth (Orange)
-  - Sustainability (Yellow)
-- Test mode for facilitators to try out the system
-- Simple, minimalist interface
+## How it works
 
-## Workshop Setup & Usage
+There are **35 concepts** (7 in each of 5 categories). Each concept can be drawn only once. The server remembers a participant by **IP address**, so reloading the page keeps their result. Restarting the server clears all draws.
 
-1. **Network Setup**
-   - Configure the `.env` file with your WiFi network details
-   - Start the server (see Running the Application below)
-   - Access `/wifi` to get the WiFi QR code
-   - Have all participants scan this code to join the same network
+| Category | Color |
+| --- | --- |
+| Timor-Leste | Green |
+| Entrepreneurship | Blue |
+| Youth | Orange |
+| Sustainability | Yellow |
+| Health | Teal |
 
-2. **Application Access**
-   - Once participants are on the network, access `/qr` to get the application QR code
-   - Share this QR code with participants
-   - Each participant scans the code to access the application
+## Workshop flow
 
-3. **Concept Drawing**
-   - Participants click the "DRAW A CONCEPT" button
-   - They receive a unique concept with a color-coded background
-   - The concept stays with them even if they reload the page
-   - Each IP address can only draw once until the server restarts
+Do this on one laptop connected to the workshop Wi‑Fi.
 
-4. **Live Monitoring (For Facilitators)**
-   - Access the monitoring dashboard at `/monitor` (e.g., `http://your-ip:3000/monitor`)
-   - View real-time participant activity and statistics
-   - See which concepts have been drawn and by whom
-   - Monitor category distribution and remaining concepts
-   - Track participant IP addresses and timestamps
+1. **Configure and start the server** (see [Setup](#setup)).
+2. **Connect phones to Wi‑Fi** — open `/wifi` on the laptop and let people scan that QR code. Skip this if everyone is already on the same network.
+3. **Open the app** — open `/qr` and share that QR code. It points to the draw page.
+4. **Participants draw** — they tap the button once and keep their concept.
+5. **Watch progress** — open `/monitor` on a projector or second screen. Draws appear live. There is no login; treat it as a room-only page.
 
-## Prerequisites
+## Setup
 
-- Node.js (v12 or higher)
-- npm (comes with Node.js)
+You need Node.js and npm (Node 18 or newer is a safe choice).
 
-## Environment Variables
+```bash
+git clone https://github.com/marobo/lucky-draw.git
+cd lucky-draw
+npm install
+```
 
-- `PORT` - Server port (default: 3000)
-- `HOST` - Server host (default: 'localhost')
-- `WIFI_SSID` - WiFi network name
-- `WIFI_PASSWORD` - WiFi password
-- `WIFI_ENCRYPTION` - WiFi encryption type (WPA, WEP, or empty for none)
+Copy the example config to `.env` and edit it:
 
-## Installation
+```bash
+cp .env.example.yaml .env
+```
 
-1. Clone the repository:
-   ```bash
-   git clone [repository-url]
-   cd random-concept-draw
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Copy `.env.example` to `.env` and configure your settings:
-   - Set the HOST to your computer's local IP address
-   - Configure your WiFi network details
-
-## Running the Application
+| Variable | Purpose |
+| --- | --- |
+| `PORT` | Server port. Default: `3000`. |
+| `HOST` | Address used in the **app QR code**. Set this to your laptop’s **LAN IP** (for example `192.168.1.42`), not `localhost`, or phones cannot open the app. |
+| `WIFI_SSID` | Workshop Wi‑Fi name. Required to generate the Wi‑Fi QR code. |
+| `WIFI_PASSWORD` | Workshop Wi‑Fi password. |
+| `WIFI_ENCRYPTION` | `WPA` (usual), `WEP`, or empty for an open network. |
 
 Start the server:
 
@@ -82,69 +56,26 @@ Start the server:
 node index.js
 ```
 
-The server will:
-1. Generate QR codes for WiFi and application access
-2. Log the URLs for both QR codes
-3. Start listening for connections
+In the terminal you will see URLs such as `http://YOUR_HOST:3000`. Use those on the laptop; participants should use the QR codes.
 
-## Project Structure
+## Pages
 
-```
-random-concept-draw/
-├── index.js          # Main server file
-├── public/           # Static files
-│   ├── index.html    # Main page
-│   ├── test.html     # Test page
-│   ├── monitor.html  # Live monitoring dashboard
-│   ├── wifi.html     # WiFi QR code page
-│   ├── qr.html       # App QR code page
-│   ├── styles.css    # Styles
-│   └── script.js     # Client-side JavaScript
-├── .env.example      # Example configuration
-└── package.json      # Project dependencies
-```
+Replace `HOST` and `PORT` with your values (for example `http://192.168.1.42:3000`).
 
-## Dependencies
+| URL | Who uses it | What it is |
+| --- | --- | --- |
+| `/` | Participants | Draw a concept (one draw per IP). |
+| `/wifi` | Facilitator | Wi‑Fi join QR code. Missing if SSID/password are not set. |
+| `/qr` | Facilitator | App URL QR code. |
+| `/monitor` | Facilitator | Live list of draws, category counts, remaining concepts. |
+| `/test` | Facilitator | Practice draws. **This uses the same concept pool as the real draw.** Reset by restarting the server before the workshop starts. |
 
-- express - Web framework
-- morgan - HTTP request logger middleware
-- qrcode - QR code generation
-- dotenv - Environment configuration
-- socket.io - Real-time communication for live monitoring
+## Good to know
 
-## Testing
+- One draw per device IP until the server restarts. Shared NAT (some guest networks) can make several people look like one IP.
+- Draws are stored in memory only. A restart wipes results and restores the full concept list.
+- `/monitor` is not password-protected. Use it on the workshop network, not on a public internet host.
 
-Use the test page at `/test` to:
-- Draw multiple concepts
-- See the draw history
-- Test the color-coding system
-- Verify the remaining count
+## License
 
-This is useful for facilitators to test the system before a workshop.
-
-## Live Monitoring Dashboard
-
-The monitoring dashboard provides real-time insights into participant activity:
-
-### Features
-- **Real-time Updates**: See participant draws as they happen using WebSocket technology
-- **Statistics Overview**: Track total participants, remaining concepts, and category distribution
-- **Participant List**: View all participants with their drawn concepts, IP addresses, and timestamps
-- **Category Tracking**: Monitor how many concepts have been drawn from each category
-- **Connection Status**: Visual indicator showing connection to the live feed
-
-### Access
-- Navigate to `http://your-server-ip:3000/monitor` in your browser
-- The dashboard automatically connects and starts receiving real-time updates
-- No authentication required - designed for workshop environments
-
-### Use Cases
-- **Workshop Management**: Monitor participation in real-time
-- **Progress Tracking**: See how many participants have drawn concepts
-- **Category Balance**: Ensure concepts are distributed across all categories
-- **Troubleshooting**: Identify participants who may need assistance
-- **Data Collection**: Export participant data for workshop analysis
-
-## Created for
-
-MOVE Entrepreneurship Workshop | Catalpa International
+MIT. See [LICENSE](LICENSE).
