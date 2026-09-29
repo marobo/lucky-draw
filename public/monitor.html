@@ -63,10 +63,11 @@
             font-weight: bold;
         }
         
-        .rai_ulun { background-color: #00AB55; }
-        .rai_klaran { background-color: #FFB400; }
-        .rai_ikun { background-color: #2065D1; }
-        .rai_ketan { background-color: #FF0000; }
+        .category-stat .category-total {
+            font-size: 0.8em;
+            font-weight: normal;
+            opacity: 0.85;
+        }
         
         .participants-section {
             background: white;
@@ -190,34 +191,19 @@
                 <div class="stat-label">Total Concepts</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="remainingConcepts">20</div>
+                <div class="stat-number" id="remainingConcepts">-</div>
                 <div class="stat-label">Concepts Remaining</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="totalConcepts">20</div>
+                <div class="stat-number" id="totalConcepts">-</div>
                 <div class="stat-label">Total Concepts</div>
             </div>
         </div>
         
         <div class="stat-card">
             <h3 style="margin-top: 0; text-align: center;">Category Distribution</h3>
-            <div class="category-stats">
-                <div class="category-stat rai_ulun">
-                    <div>rai_ulun</div>
-                    <div id="rai_ulunCount">0</div>
-                </div>
-                <div class="category-stat rai_klaran">
-                    <div>rai_klaran</div>
-                    <div id="rai_klaranCount">0</div>
-                </div>
-                <div class="category-stat rai_ikun">
-                    <div>rai_ikun</div>
-                    <div id="rai_ikunCount">0</div>
-                </div>
-                <div class="category-stat rai_ketan">
-                    <div>rai_ketan</div>
-                    <div id="rai_ketanCount">0</div>
-                </div>
+            <div class="category-stats" id="categoryStats">
+                <div class="empty-state">Loading categories...</div>
             </div>
         </div>
         
@@ -238,6 +224,41 @@
     <script>
         const socket = io();
         let participants = [];
+        // { totalConcepts, conceptTypes: { key: { color, count } } } — loaded from server
+        let config = null;
+        
+        function applyConfig(newConfig) {
+            if (!newConfig || !newConfig.conceptTypes) return;
+            config = newConfig;
+            renderCategoryTiles();
+        }
+        
+        function renderCategoryTiles() {
+            const container = document.getElementById('categoryStats');
+            container.innerHTML = Object.entries(config.conceptTypes).map(([type, info]) => `
+                <div class="category-stat" style="background-color: ${info.color}">
+                    <div>${type}</div>
+                    <div id="${type}Count">0</div>
+                    <div class="category-total">of ${info.count}</div>
+                </div>
+            `).join('');
+        }
+        
+        function computeCategoryStats() {
+            const keys = config ? Object.keys(config.conceptTypes) : [];
+            const stats = Object.fromEntries(keys.map(k => [k, 0]));
+            for (const p of participants) {
+                stats[p.type] = (stats[p.type] || 0) + 1;
+            }
+            return stats;
+        }
+        
+        function loadConfig() {
+            return fetch('/api/config')
+                .then(response => response.json())
+                .then(applyConfig)
+                .catch(error => console.error('Error loading config:', error));
+        }
         
         // Connection status
         socket.on('connect', () => {
@@ -252,6 +273,7 @@
         
         // Initial data
         socket.on('initialData', (data) => {
+            applyConfig(data.config);
             participants = data.participants;
             updateStats(data.stats);
             updateParticipantsList();
@@ -272,13 +294,8 @@
             updateStats({
                 totalParticipants: participants.length,
                 remainingConcepts: data.remaining,
-                totalConcepts: 20,
-                categoryStats: {
-                    rai_ulun: participants.filter(p => p.type === 'rai_ulun').length,
-                    rai_klaran: participants.filter(p => p.type === 'rai_klaran').length,
-                    rai_ikun: participants.filter(p => p.type === 'rai_ikun').length,
-                    rai_ketan: participants.filter(p => p.type === 'rai_ketan').length
-                }
+                totalConcepts: config ? config.totalConcepts : '-',
+                categoryStats: computeCategoryStats()
             });
             
             updateParticipantsList();
@@ -289,10 +306,10 @@
             document.getElementById('remainingConcepts').textContent = stats.remainingConcepts;
             document.getElementById('totalConcepts').textContent = stats.totalConcepts;
 
-            document.getElementById('rai_ulunCount').textContent = stats.categoryStats.rai_ulun;
-            document.getElementById('rai_klaranCount').textContent = stats.categoryStats.rai_klaran;
-            document.getElementById('rai_ikunCount').textContent = stats.categoryStats.rai_ikun;
-            document.getElementById('rai_ketanCount').textContent = stats.categoryStats.rai_ketan;
+            for (const [type, count] of Object.entries(stats.categoryStats || {})) {
+                const el = document.getElementById(`${type}Count`);
+                if (el) el.textContent = count;
+            }
         }
         
         function updateParticipantsList() {
@@ -326,7 +343,9 @@
         }
         
         function refreshData() {
-            fetch('/api/monitor')
+            const ready = config ? Promise.resolve() : loadConfig();
+            ready
+                .then(() => fetch('/api/monitor'))
                 .then(response => response.json())
                 .then(data => {
                     participants = data.participants;
@@ -337,6 +356,9 @@
                     console.error('Error refreshing data:', error);
                 });
         }
+        
+        // Load config immediately so tiles render even before the socket connects
+        loadConfig();
         
         // Auto-refresh every 30 seconds as backup
         setInterval(refreshData, 30000);
