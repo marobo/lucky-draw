@@ -50,7 +50,7 @@ const conceptTypes = {
     color: '#00AB55', // green
     concepts: ['Kulu-Tunu', 'Makasae', 'Ulun-Toos', 'Mistisa', 'Mistisu']
   },
-  raik_klaran: {
+  rai_klaran: {
     color: '#FFB400', // yellow
     concepts: ['Kode-kaba-kode', 'Modo-Metan', 'Repoliu', 'Malirin', 'Ramelau']
   },
