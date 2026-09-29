@@ -46,25 +46,21 @@ const getIPv4 = (req, res, next) => {
 
 // Organize concepts by type with their associated colors
 const conceptTypes = {
-  timor: {
+  rai_ulun: {
     color: '#00AB55', // green
-    concepts: ['Matak', 'Matak', 'Matak']
+    concepts: ['Kulu-Tunu', 'Makasae', 'Ulun-Toos', 'Mistisa', 'Mistisu']
   },
-  entrepreneurship: {
-    color: '#2065D1', // blue
-    concepts: ['Azul', 'Azul', 'Azul']
-  },
-  youth: {
-    color: '#000000', // black
-    concepts: ['Metan', 'Metan', 'Metan']
-  },
-  sustainability: {
+  raik_klaran: {
     color: '#FFB400', // yellow
-    concepts: ['Kinur', 'Kinur', 'Kinur']
+    concepts: ['Kode-kaba-kode', 'Modo-Metan', 'Repoliu', 'Malirin', 'Ramelau']
   },
-  health: {
+  rai_ikun: {
+    color: '#2065D1', // blue
+    concepts: ['Bunak', 'Bee-Manas', 'Malae', 'Kemak', 'Kode-Lulik']
+  },
+  rai_ketan: {
     color: '#FF0000', // red
-    concepts: ['Mean', 'Mean', 'Mean']
+    concepts: ['Oecusse', 'Atauro', 'Jaco', 'Alor', 'Liran']
   }
 };
 
@@ -117,13 +113,12 @@ app.get('/api/monitor', (req, res) => {
   const stats = {
     totalParticipants: participants.length,
     remainingConcepts: concepts.length,
-    totalConcepts: 15, // 3 concepts per category × 5 categories
+    totalConcepts: 20, // 20 concepts per category × 4 categories
     categoryStats: {
-      timor: participants.filter(p => p.type === 'timor').length,
-      entrepreneurship: participants.filter(p => p.type === 'entrepreneurship').length,
-      youth: participants.filter(p => p.type === 'youth').length,
-      sustainability: participants.filter(p => p.type === 'sustainability').length,
-      health: participants.filter(p => p.type === 'health').length
+      rai_ulun: participants.filter(p => p.type === 'rai_ulun').length,
+      rai_klaran: participants.filter(p => p.type === 'rai_klaran').length,
+      rai_ikun: participants.filter(p => p.type === 'rai_ikun').length,
+      rai_ketan: participants.filter(p => p.type === 'rai_ketan').length,
     }
   };
   
@@ -292,13 +287,12 @@ io.on('connection', (socket) => {
     stats: {
       totalParticipants: userDraws.size,
       remainingConcepts: concepts.length,
-      totalConcepts: 15,
+      totalConcepts: 20,
       categoryStats: {
-        timor: Array.from(userDraws.values()).filter(d => d.type === 'timor').length,
-        entrepreneurship: Array.from(userDraws.values()).filter(d => d.type === 'entrepreneurship').length,
-        youth: Array.from(userDraws.values()).filter(d => d.type === 'youth').length,
-        sustainability: Array.from(userDraws.values()).filter(d => d.type === 'sustainability').length,
-        health: Array.from(userDraws.values()).filter(d => d.type === 'health').length
+        rai_ulun: Array.from(userDraws.values()).filter(d => d.type === 'rai_ulun').length,
+        rai_klaran: Array.from(userDraws.values()).filter(d => d.type === 'rai_klaran').length,
+        rai_ikun: Array.from(userDraws.values()).filter(d => d.type === 'rai_ikun').length,
+        rai_ketan: Array.from(userDraws.values()).filter(d => d.type === 'rai_ketan').length
       }
     }
   });
