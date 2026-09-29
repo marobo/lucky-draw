@@ -44,33 +44,70 @@ const getIPv4 = (req, res, next) => {
   next();
 };
 
-// Organize concepts by type with their associated colors
-const conceptTypes = {
-  timor: {
-    color: '#00AB55', // green
-    concepts: ['Matak', 'Matak', 'Matak']
-  },
-  entrepreneurship: {
-    color: '#2065D1', // blue
-    concepts: ['Azul', 'Azul', 'Azul']
-  },
-  youth: {
-    color: '#000000', // black
-    concepts: ['Metan', 'Metan', 'Metan']
-  },
-  sustainability: {
-    color: '#FFB400', // yellow
-    concepts: ['Kinur', 'Kinur', 'Kinur']
-  },
-  health: {
-    color: '#FF0000', // red
-    concepts: ['Mean', 'Mean', 'Mean']
+// Build concept categories from .env
+//   CONCEPT_TYPES=key1,key2,...
+//   CONCEPT_<key>_COLOR=#RRGGBB
+//   CONCEPT_<key>_LIST=Concept A,Concept B,...
+const splitList = (value) =>
+  (value || '').split(',').map(s => s.trim()).filter(Boolean);
+
+function loadConceptTypes() {
+  const typeKeys = splitList(process.env.CONCEPT_TYPES);
+  if (typeKeys.length === 0) {
+    throw new Error('CONCEPT_TYPES is missing or empty in .env');
   }
-};
+
+  const result = {};
+  for (const key of typeKeys) {
+    const color = (process.env[`CONCEPT_${key}_COLOR`] || '').trim();
+    const list = splitList(process.env[`CONCEPT_${key}_LIST`]);
+    if (!color) {
+      throw new Error(`Missing CONCEPT_${key}_COLOR in .env`);
+    }
+    if (list.length === 0) {
+      throw new Error(`Missing or empty CONCEPT_${key}_LIST in .env`);
+    }
+    result[key] = { color, concepts: list };
+  }
+  return result;
+}
+
+const conceptTypes = loadConceptTypes();
 
 // Flatten concepts for drawing while keeping track of their type
 let concepts = Object.entries(conceptTypes).flatMap(([type, data]) => 
   data.concepts.map(concept => ({ concept, type }))
+);
+
+// Derived from the lists so it can never drift out of sync
+const TOTAL_CONCEPTS = concepts.length;
+
+// Count draws per category, always including every configured category
+function buildCategoryStats(draws) {
+  return Object.fromEntries(
+    Object.keys(conceptTypes).map(type => [
+      type,
+      draws.filter(d => d.type === type).length
+    ])
+  );
+}
+
+// Public config for the monitor UI (no concept names leaked)
+function buildPublicConfig() {
+  return {
+    totalConcepts: TOTAL_CONCEPTS,
+    conceptTypes: Object.fromEntries(
+      Object.entries(conceptTypes).map(([key, data]) => [
+        key,
+        { color: data.color, count: data.concepts.length }
+      ])
+    )
+  };
+}
+
+console.log(
+  `Loaded ${TOTAL_CONCEPTS} concepts across ${Object.keys(conceptTypes).length} categories: ` +
+  Object.entries(conceptTypes).map(([k, v]) => `${k} (${v.concepts.length})`).join(', ')
 );
 
 // Uncomment and modify the static files middleware
@@ -117,20 +154,19 @@ app.get('/api/monitor', (req, res) => {
   const stats = {
     totalParticipants: participants.length,
     remainingConcepts: concepts.length,
-    totalConcepts: 15, // 3 concepts per category × 5 categories
-    categoryStats: {
-      timor: participants.filter(p => p.type === 'timor').length,
-      entrepreneurship: participants.filter(p => p.type === 'entrepreneurship').length,
-      youth: participants.filter(p => p.type === 'youth').length,
-      sustainability: participants.filter(p => p.type === 'sustainability').length,
-      health: participants.filter(p => p.type === 'health').length
-    }
+    totalConcepts: TOTAL_CONCEPTS,
+    categoryStats: buildCategoryStats(participants)
   };
   
   res.json({
     participants,
     stats
   });
+});
+
+// Expose category config (colors, counts, total) so the monitor UI can render dynamically
+app.get('/api/config', (req, res) => {
+  res.json(buildPublicConfig());
 });
 
 // Update draw route to store results
@@ -281,7 +317,9 @@ io.on('connection', (socket) => {
   console.log(`[${new Date().toISOString()}] Monitor client connected: ${socket.id}`);
   
   // Send initial data when a monitor client connects
+  const draws = Array.from(userDraws.values());
   socket.emit('initialData', {
+    config: buildPublicConfig(),
     participants: Array.from(userDraws.entries()).map(([ip, data]) => ({
       ip,
       concept: data.concept,
@@ -292,14 +330,8 @@ io.on('connection', (socket) => {
     stats: {
       totalParticipants: userDraws.size,
       remainingConcepts: concepts.length,
-      totalConcepts: 15,
-      categoryStats: {
-        timor: Array.from(userDraws.values()).filter(d => d.type === 'timor').length,
-        entrepreneurship: Array.from(userDraws.values()).filter(d => d.type === 'entrepreneurship').length,
-        youth: Array.from(userDraws.values()).filter(d => d.type === 'youth').length,
-        sustainability: Array.from(userDraws.values()).filter(d => d.type === 'sustainability').length,
-        health: Array.from(userDraws.values()).filter(d => d.type === 'health').length
-      }
+      totalConcepts: TOTAL_CONCEPTS,
+      categoryStats: buildCategoryStats(draws)
     }
   });
   
